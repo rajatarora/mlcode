@@ -1,6 +1,5 @@
 from numpy import *
 import operator
-import matplotlib
 import matplotlib.pyplot as plt
 
 # Create a training set of 2D points
@@ -47,11 +46,11 @@ def file2matrix(filename):
         line = line.strip()
         listFromLine = line.split('\t')
         returnMat[index,:] = listFromLine[0:3]
-        classLabelVector.append(listFromLine[-1])
+        classLabelVector.append(int(listFromLine[-1]))
         index +=1
     return returnMat, classLabelVector
 
-def createPlot():
+def createPlotForEx1():
     group, labels = createDataSet()
     plt.clf()
     plt.scatter(group[:,0],group[:,1])
@@ -62,5 +61,11 @@ def createPlot():
                      (group[x][0], group[x][1]),
                      textcoords="offset points",
                      xytext=(8,-3))
+    plt.show()
 
+def createPlotForEx2(x, y):
+    datingMat, datingLabels = file2matrix("mlia02/datingTestSet2.txt")
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(datingMat[:,x], datingMat[:,y], 15.0*array(datingLabels), 15.0*array(datingLabels))
     plt.show()

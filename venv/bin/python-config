@@ -1,4 +1,4 @@
-#!/home/rajat/0/personal/ML/mlcode/venv/bin/python
+#!/home/rajat/0/ML/mlcode/venv/bin/python
 
 import sys
 import getopt

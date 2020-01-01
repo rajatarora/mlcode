@@ -36,17 +36,17 @@ def classify0(inX, dataset, labels, k):
     return sortedClassCount[0][0]
 
 def file2matrix(filename):
-    fr = open(filename)
-    numberOfLines = len(fr.readlines())
-    returnMat = zeros((numberOfLines, 3))
+    fr = open(filename) # Open the file for reading
+    numberOfLines = len(fr.readlines()) # Find out number of lines
+    returnMat = zeros((numberOfLines, 3)) # Create a matrix of zeros: number of lines x number of features
     classLabelVector = []
     fr = open(filename)
     index = 0
     for line in fr.readlines():
         line = line.strip()
         listFromLine = line.split('\t')
-        returnMat[index,:] = listFromLine[0:3]
-        classLabelVector.append(int(listFromLine[-1]))
+        returnMat[index,:] = listFromLine[0:3] # Fill the matrix with first 3 columns in the file
+        classLabelVector.append(int(listFromLine[-1])) # Get the class label from the last column of the file
         index +=1
     return returnMat, classLabelVector
 
@@ -67,5 +67,31 @@ def createPlotForEx2(x, y):
     datingMat, datingLabels = file2matrix("mlia02/datingTestSet2.txt")
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(datingMat[:,x], datingMat[:,y], 15.0*array(datingLabels), 15.0*array(datingLabels))
+    print datingMat[:,x]
+    ax.scatter(datingMat[:,x], datingMat[:,y], 15.0*array(datingLabels), 5.0*array(datingLabels))
     plt.show()
+
+
+def autonorm(dataset):
+    minvals = dataset.min(0) # Get minimum numeric value of each feature. 1D array of no. of features
+    maxvals = dataset.max(0) # Get maximum numeric value of each feature. 1D array of no. of features
+    ranges = maxvals - minvals # Get (max - min) for each feature. 1D array of no. of features
+    normdataset = zeros(shape(dataset)) # Create a '0' matrix of the same shape as dataset
+    m = dataset.shape[0] # No. of rows in the dataset
+    normdataset = dataset - tile(minvals, (m,1)) # Repeat min values array for the number of rows,
+                                                 # then subtract it from dataset
+    normdataset = normdataset/tile(ranges, (m,1)) # Divide each row of the dataset with (max - min) range
+    return normdataset, ranges, minvals
+
+def datingDataTest(ratio, k):
+    # ratio = 0.15
+    datingMat, datingLabels = file2matrix("mlia02/datingTestSet2.txt")
+    normMat, ranges, minvals = autonorm(datingMat)
+    m = normMat.shape[0]
+    numTestVecs = int(m*ratio)
+    errorcount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify0(normMat[i,:], normMat[numTestVecs:m,:], datingLabels[numTestVecs:m], k)
+        print "Classified: %d, Actual: %d" % (classifierResult, datingLabels[i])
+        if (classifierResult != datingLabels[i]): errorcount += 1.0
+    print "Total error rate: %f" % (errorcount/float(numTestVecs))

@@ -1,6 +1,7 @@
 from numpy import *
 import operator
 import matplotlib.pyplot as plt
+from os import listdir
 
 # Create a training set of 2D points
 def createDataSet():
@@ -83,6 +84,7 @@ def autonorm(dataset):
     normdataset = normdataset/tile(ranges, (m,1)) # Divide each row of the dataset with (max - min) range
     return normdataset, ranges, minvals
 
+
 # Method to test the dating algorithm
 def datingDataTest(ratio, k):
     datingMat, datingLabels = file2matrix("mlia02/datingTestSet2.txt")
@@ -95,3 +97,43 @@ def datingDataTest(ratio, k):
         print "Classified: %d, Actual: %d" % (classifierResult, datingLabels[i])
         if (classifierResult != datingLabels[i]): errorcount += 1.0
     print "Total error rate: %f" % (errorcount/float(numTestVecs))
+
+
+def image2vector(filename):
+    returnVect = zeros((1,1024))
+    fr = open(filename)
+    for i in range(32):
+        line = fr.readline()
+        for j in range(32):
+            returnVect[0,32*i+j] = int(line[j])
+    return returnVect
+
+
+# Method to classify handwritten digits using kNN
+def handwritingdatatest(trainingfolder, testfolder, k):
+
+    # Preparing the training dataset
+    labels = []
+    traininglist = listdir(trainingfolder)
+    m = len(traininglist)
+    trainingmat = zeros((m, 1024))
+    for i in range(m):
+        filename = traininglist[i]
+        filenamestr = filename.split('.')[0]
+        classtr = filenamestr.split('_')[0]
+        labels.append(classtr)
+        trainingmat[i,:] = image2vector(trainingfolder + '/' + filename)
+
+    # Preparing to test the algorithm
+    testlist = listdir(testfolder)
+    mtest = len(testlist)
+    errors = 0.0
+    for i in range(mtest):
+        filename = testlist[i]
+        filenamestr = filename.split('.')[0]
+        classtr = int(filenamestr.split('_')[0])
+        testvector = image2vector(testfolder + '/' + filename)
+        predictedclass = int(classify0(testvector, trainingmat, labels, k))
+        print "Classified: %d, Actual: %d" % (predictedclass, classtr)
+        if (predictedclass != classtr): errors += 1.0
+    print "Total error rate: %f" % (errors/float(mtest))

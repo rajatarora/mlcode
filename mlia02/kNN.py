@@ -83,8 +83,8 @@ def autonorm(dataset):
     normdataset = normdataset/tile(ranges, (m,1)) # Divide each row of the dataset with (max - min) range
     return normdataset, ranges, minvals
 
+# Method to test the dating algorithm
 def datingDataTest(ratio, k):
-    # ratio = 0.15
     datingMat, datingLabels = file2matrix("mlia02/datingTestSet2.txt")
     normMat, ranges, minvals = autonorm(datingMat)
     m = normMat.shape[0]

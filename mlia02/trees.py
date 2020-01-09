@@ -91,3 +91,30 @@ def createtree(ds, labels):
         sublabels = labels[:]
         tree[bestfeatlabel][value] = createtree(splitds(ds, bestfeat, value), sublabels)
     return tree
+
+
+# Method to classify a vector using a given decision tree
+def classify(tree, labels, vector):
+    firststr = tree.keys()[0]  # Get the first feature of the tree
+    seconddict = tree[firststr]  # Get the subtree
+    featureidx = labels.index(firststr)  # Find out on which index in the data does this feature lie
+    for key in seconddict.keys():
+        if vector[featureidx] == key:  # If a particular branch of subtree matches corresponding vector's value
+            if type(seconddict[key]).__name__=='dict':
+                classlabel = classify(seconddict[key], labels, vector)  # Go down the branch if it is not a leaf node
+            else:
+                classlabel = seconddict[key]  # Return the label if it is a leaf node
+    return classlabel
+
+
+def storetree(tree, filename):
+    import pickle
+    fw = open(filename, 'w')
+    pickle.dump(tree, fw)
+    fw.close()
+
+
+def grabtree(filename):
+    import pickle
+    fr = open(filename)
+    return pickle.load(fr)
